@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HistorIA - Quiz Memorístico de Historia de Género</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f4a261;
+            --cream: #f8f5f2;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --success: #00b894;
+            --error: #d63031;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(233, 69, 96, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        /* Score bar */
+        .score-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .score-item .icon {
+            font-size: 1.3rem;
+        }
+
+        /* Mode selector */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mode-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 60px rgba(233, 69, 96, 0.2);
+        }
+
+        .mode-card.active {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+        }
+
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .mode-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .mode-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* Game area */
+        .game-area {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Flashcard */
+        .flashcard-container {
+            perspective: 1000px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .flashcard {
+            width: 100%;
+            min-height: 300px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            min-height: 300px;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, var(--cream) 0%, #fff 100%);
+            color: var(--text);
+            transform: rotateY(180deg);
+            border: 2px solid var(--accent);
+        }
+
+        .flashcard-front h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .flashcard-front .hint {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 20px;
+        }
+
+        .flashcard-back h4 {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .flashcard-back p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-error {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Quiz */
+        .quiz-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+            background: #fff5f5;
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: #e8f8f5;
+            color: var(--success);
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--error);
+            background: #ffe5e5;
+            color: var(--error);
+        }
+
+        .quiz-option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .quiz-option.correct .option-letter {
+            background: var(--success);
+        }
+
+        .quiz-option.wrong .option-letter {
+            background: var(--error);
+        }
+
+        /* Fill in blank */
+        .fill-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .fill-question .blank {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 3px solid var(--accent);
+            margin: 0 5px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent);
+            transition: all 0.3s;
+        }
+
+        .fill-input-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .fill-input {
+            padding: 14px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            min-width: 200px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .fill-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
+        }
+
+        .fill-hints {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .hint-chip {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .hint-chip:hover {
+            background: #fff5f5;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Match game */
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .match-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .match-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .match-item.selected {
+            border-color: var(--accent);
+            background: #fff5f5;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
+        }
+
+        .match-item.matched {
+            border-color: var(--success);
+            background: #e8f8f5;
+            pointer-events: none;
+        }
+
+        .match-item.wrong-match {
+            border-color: var(--error);
+            background: #ffe5e5;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Feedback */
+        .feedback {
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-weight: 600;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: #e8f8f5;
+            color: var(--success);
+        }
+
+        .feedback.wrong {
+            background: #ffe5e5;
+            color: var(--error);
+        }
+
+        /* Results */
+        .results-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .results-score {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--gold) 0%, #f4d03f 100%);
+            color: var(--primary);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        /* Category filter */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .category-chip {
+            padding: 8px 18px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .category-chip:hover, .category-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 2rem; }
+            .game-area { padding: 25px; }
+            .quiz-question { font-size: 1.2rem; }
+            .flashcard { min-height: 250px; }
+            .flashcard-face { padding: 25px; min-height: 250px; }
+            .match-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Timer */
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .timer.warning {
+            background: var(--error);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>HistorIA</h1>
+            <p>Quiz Memorístico · Historia de Género en América Latina</p>
+        </div>
+
+        <div class="score-bar" id="scoreBar">
+            <div class="score-item">
+                <span class="icon">⭐</span>
+                <span id="totalScore">0</span> pts
+            </div>
+            <div class="score-item">
+                <span class="icon">🔥</span>
+                <span id="streak">0</span> racha
+            </div>
+            <div class="score-item">
+                <span class="icon">📚</span>
+                <span id="answered">0</span>/<span id="totalQuestions">0</span>
+            </div>
+        </div>
+
+        <div class="category-filter" id="categoryFilter">
+            <div class="category-chip active" data-cat="all">Todas</div>
+            <div class="category-chip" data-cat="teoria">Teoría</div>
+            <div class="category-chip" data-cat="fechas">Fechas</div>
+            <div class="category-chip" data-cat="personas">Personas</div>
+            <div class="category-chip" data-cat="conceptos">Conceptos</div>
+            <div class="category-chip" data-cat="paises">Países</div>
+        </div>
+
+        <div class="mode-grid" id="modeSelector">
+            <div class="mode-card active" data-mode="flashcard">
+                <span class="mode-icon">🎴</span>
+                <h3>Flashcards</h3>
+                <p>Voltea tarjetas para memorizar conceptos, fechas y definiciones clave</p>
+            </div>
+            <div class="mode-card" data-mode="quiz">
+                <span class="mode-icon">❓</span>
+                <h3>Quiz Múltiple</h3>
+                <p>Elige la respuesta correcta entre 4 opciones. ¡Contra el reloj!</p>
+            </div>
+            <div class="mode-card" data-mode="fill">
+                <span class="mode-icon">✏️</span>
+                <h3>Completa el Dato</h3>
+                <p>Escribe la respuesta exacta: fechas, nombres y conceptos</p>
+            </div>
+            <div class="mode-card" data-mode="match">
+                <span class="mode-icon">🧩</span>
+                <h3>Empareja</h3>
+                <p>Relaciona conceptos con sus definiciones o autores con sus obras</p>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div style="text-align: center; padding: 60px 20px; color: var(--text-light);">
+                <div style="font-size: 4rem; margin-bottom: 20px;">👆</div>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--primary); margin-bottom: 10px;">
+                    Selecciona un modo de juego
+                </h3>
+                <p>Elige arriba cómo quieres practicar los conceptos memorísticos</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================== DATA =====================
+        const data = [
+            // TEORÍA / CONCEPTOS
+            { type: 'concepto', category: 'teoria', question: '¿Qué corriente historiográfica se centraba en grandes héroes, hechos políticos y estructuras nacionales?', answer: 'Historia Tradicional', options: ['Nueva Historia', 'Historia Tradicional', 'Postmodernismo', 'Estructuralismo'] },
+            { type: 'concepto', category: 'teoria', question: '¿Qué corriente analiza relatos de la gente común, discursos y construcciones sociales como género y familia?', answer: 'Nueva Historia', options: ['Historia Tradicional', 'Modernismo', 'Nueva Historia', 'Estructuralismo'] },
+            { type: 'fecha', category: 'teoria', question: '¿En qué década surgió el Estructuralismo que cuestionaba estructuras fijas?', answer: '1950s y 1960s', options: ['1920s', '1950s y 1960s', '1970s', '1990s'] },
+            { type: 'concepto', category: 'teoria', question: '¿Qué corriente rechaza verdades únicas y analiza diversidad y significados?', answer: 'Postestructuralismo / Postmodernismo', options: ['Modernismo', 'Estructuralismo', 'Postestructuralismo / Postmodernismo', 'Positivismo'] },
+            { type: 'fecha', category: 'teoria', question: '¿En qué década se enfocó la Historia de las Mujeres en visibilizar experiencias femeninas?', answer: '1960s y 1970s', options: ['1940s y 1950s', '1960s y 1970s', '1980s y 1990s', '2000s'] },
+            { type: 'persona', category: 'personas', question: '¿Quién popularizó el género como categoría analítica desde la academia norteamericana?', answer: 'Joan Scott', options: ['Michel Foucault', 'Joan Scott', 'Kimberlé Crenshaw', 'Rita Segato'] },
+            { type: 'persona', category: 'personas', question: '¿Qué filósofo francés influyó en el análisis del género como relación y dispositivos de poder?', answer: 'Michel Foucault', options: ['Jean-Paul Sartre', 'Michel Foucault', 'Jacques Derrida', 'Pierre Bourdieu'] },
+            { type: 'fecha', category: 'teoria', question: '¿En qué décadas el género se consolidó como categoría analítica en América Latina?', answer: '1980s y 1990s', options: ['1960s y 1970s', '1980s y 1990s', '2000s', '1950s'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué término define el conjunto de saberes, discursos y prácticas de poder sobre diferencias entre sexos?', answer: 'Género', options: ['Sexo', 'Género', 'Identidad sexual', 'Interseccionalidad'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué distingue la Identidad de Género de la Identidad Sexual?', answer: 'La identidad de género es construcción socio-cultural; la sexual es biológica', options: ['No hay diferencia', 'La identidad de género es biológica', 'La identidad de género es construcción socio-cultural; la sexual es biológica', 'La identidad sexual es social'] },
+            { type: 'persona', category: 'personas', question: '¿Quién acuñó el concepto de Interseccionalidad en 1989?', answer: 'Kimberlé Crenshaw', options: ['Judith Butler', 'Kimberlé Crenshaw', 'Simone de Beauvoir', 'Betty Friedan'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué concepto de Foucault describe que el poder se ejerce, no se posee?', answer: 'Dispositivos de Poder', options: ['Hegemonía', 'Agencia', 'Dispositivos de Poder', 'Interseccionalidad'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué término describe la imposición de roles por consenso o fuerza de grupos dominantes?', answer: 'Hegemonía', options: ['Agencia', 'Hegemonía', 'Patriarcado', 'Colonialismo'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué término describe la capacidad de los sujetos para resistir y transformar relaciones de poder?', answer: 'Agencia', options: ['Hegemonía', 'Agencia', 'Subalternidad', 'Rebeldía'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué se asocia tradicionalmente a lo masculino según los imaginarios históricos?', answer: 'Cultura, saber letrado, política y lo público', options: ['Naturaleza, lo emocional y lo reproductivo', 'Cultura, saber letrado, política y lo público', 'Lo doméstico y el cuidado', 'Lo privado y la familia'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué se asocia tradicionalmente a lo femenino según los imaginarios históricos?', answer: 'Naturaleza, lo emocional, lo reproductivo y lo privado', options: ['Cultura y política', 'Naturaleza, lo emocional, lo reproductivo y lo privado', 'Saber letrado', 'Espacio público'] },
+
+            // RITA SEGATO / COLONIAL
+            { type: 'persona', category: 'personas', question: '¿Qué antropóloga propone la distinción entre Patriarcado Comunitario y Patriarcado Colonial Moderno?', answer: 'Rita Segato', options: ['Silvia Federici', 'Rita Segato', 'María Lugones', 'Aníbal Quijano'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué caracteriza al Patriarcado Comunitario según Segato?', answer: 'Dualidad (no binarismo) y politicidad del espacio doméstico', options: ['Binarismo jerárquico', 'Dualidad (no binarismo) y politicidad del espacio doméstico', 'Despolitización de lo doméstico', 'Hiperinflación de lo masculino'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué caracteriza al Patriarcado Colonial Moderno según Segato?', answer: 'Binarismo jerárquico, despolitización de lo doméstico e hiperinflación de lo masculino', options: ['Dualidad complementaria', 'Binarismo jerárquico, despolitización de lo doméstico e hiperinflación de lo masculino', 'Espacio doméstico como político', 'Igualdad de género'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué documento indígena narra la conquista desde la perspectiva de los vencidos?', answer: 'Lienzo de Quauhquechollan', options: ['Códice Florentino', 'Lienzo de Quauhquechollan', 'Popol Vuh', 'Anales de Tlatelolco'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Cómo se denomina el fenómeno que Segato identifica como síntoma de la barbarie del género moderno?', answer: 'Feminicidio', options: ['Machismo', 'Feminicidio', 'Patriarcado', 'Colonialismo'] },
+
+            // CONDICIÓN LEGAL / SIGLO XIX-XX
+            { type: 'persona', category: 'personas', question: '¿Qué pensador italiano de 1883 usó argumentos de John Stuart Mill para defender derechos de la mujer?', answer: 'Nicolás Minelli', options: ['Alfredo Palacios', 'Nicolás Minelli', 'Baltasar Brum', 'Julio Zegers'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año Alfredo Palacios presentó proyectos para que la mujer administrara sus ingresos en Argentina?', answer: '1907', options: ['1902', '1907', '1910', '1913'] },
+            { type: 'persona', category: 'personas', question: '¿Quién redactó en 1910 una reforma integral para el control de ingresos y cuentas bancarias propias en Argentina?', answer: 'Elvira Rawson', options: ['Elvira Rawson', 'Cecilia Grierson', 'Gabriela Mistral', 'Rosario Castellanos'] },
+            { type: 'persona', category: 'personas', question: '¿Qué abogada chilena señaló la irracionalidad de que una mujer soltera tuviera plenos derechos pero los perdiera al casarse?', answer: 'Matilde Throup', options: ['Matilde Throup', 'Elvira Rawson', 'Eugenia Rodríguez Sáenz', 'Asunción Lavrin'] },
+            { type: 'persona', category: 'personas', question: '¿Quién cuestionó en 1887 en el Congreso de Chile el monopolio de autoridad del padre (patria potestad)?', answer: 'Julio Zegers', options: ['Julio Zegers', 'Valentín Letelier', 'Baltasar Brum', 'Alfredo Palacios'] },
+            { type: 'persona', category: 'personas', question: '¿Quién presentó en 1921 un informe modelo buscando simetría absoluta de derechos en Uruguay?', answer: 'Baltasar Brum', options: ['Baltasar Brum', 'Alfredo Palacios', 'José Batlle y Ordóñez', 'Leopoldo Bard'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué años el aumento de mujeres en educación superior generó desajuste social según los códigos civiles?', answer: '1910-1925', options: ['1880-1900', '1910-1925', '1930-1945', '1950-1965'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué concepto describe la visión que busca proteger a la mujer por su supuesta vulnerabilidad natural?', answer: 'Feminismo de Compensación', options: ['Feminismo radical', 'Feminismo de Compensación', 'Feminismo liberal', 'Feminismo socialista'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Cuál era el gran objetivo de las reformas de los Códigos Civiles respecto a la mujer?', answer: 'Personalidad Jurídica', options: ['Sufragio', 'Personalidad Jurídica', 'Divorcio', 'Educación'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué denunciaban las feministas sobre leyes que castigaban el adulterio femenino pero no el masculino?', answer: 'Doble Criterio Moral', options: ['Doble Criterio Moral', 'Patriarcado legal', 'Desigualdad estructural', 'Machismo institucional'] },
+
+            // MATRIMONIO Y DIVORCIO
+            { type: 'concepto', category: 'conceptos', question: '¿Qué diferencia fundamental existe entre matrimonio religioso y civil según las reformas?', answer: 'El religioso es sacramento indisoluble; el civil es contrato disoluble', options: ['El religioso requiere registro civil', 'El religioso es sacramento indisoluble; el civil es contrato disoluble', 'No hay diferencia legal', 'El civil requiere ceremonia religiosa'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año Uruguay aprobó la ley de divorcio bajo el gobierno del Partido Colorado?', answer: '1907', options: ['1904', '1907', '1913', '1921'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año Uruguay permitió el divorcio por sola voluntad de la mujer?', answer: '1913', options: ['1907', '1913', '1921', '1954'] },
+            { type: 'concepto', category: 'paises', question: '¿En qué país ocurrió la Tragedia del Hotel del Prado entre Celia Rodríguez y Adolfo Latorre que aceleró el divorcio?', answer: 'Uruguay', options: ['Argentina', 'Chile', 'Uruguay', 'México'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año Argentina aprobó la Ley de Matrimonio Civil?', answer: '1888', options: ['1887', '1888', '1902', '1954'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año se legalizó definitivamente el divorcio vincular en Argentina?', answer: '1987', options: ['1954', '1976', '1987', '1991'] },
+            { type: 'persona', category: 'personas', question: '¿Quién propuso en 1922 el divorcio por mutuo acuerdo en Argentina?', answer: 'Leopoldo Bard', options: ['Alfredo Palacios', 'Leopoldo Bard', 'Juan Perón', 'Baltasar Brum'] },
+            { type: 'persona', category: 'personas', question: '¿Quién propuso en 1875 en Chile el matrimonio como contrato, aunque sin disolver el vínculo?', answer: 'Valentín Letelier', options: ['Julio Zegers', 'Valentín Letelier', 'Matilde Throup', 'José Manuel Balmaceda'] },
+            { type: 'fecha', category: 'fechas', question: '¿En qué año Chile aprobó la separación de Iglesia y Estado, clave para el matrimonio civil?', answer: '1925', options: ['1910', '1925', '1931', '1940'] },
+            { type: 'persona', category: 'personas', question: '¿Qué académica escribió sobre reformas liberales del siglo XIX que buscaron "civilizar" a la mujer en Centroamérica?', answer: 'Eugenia Rodríguez Sáenz', options: ['Asunción Lavrin', 'Eugenia Rodríguez Sáenz', 'Pilar Gonzalbo Aizpuru', 'Rita Segato'] },
+
+            // EDUCACIÓN
+            { type: 'persona', category: 'personas', question: '¿Quién fue la primera médica argentina en 1889 que sufrió rechazo de una cátedra?', answer: 'Cecilia Grierson', options: ['Elvira Rawson', 'Cecilia Grierson', 'Gabriela Mistral', 'Rosario Castellanos'] },
+            { type: 'persona', category: 'personas', question: '¿Quién pidió en México (1910) que las maestras no fueran universitarias para no ser "madres de prole enfermiza"?', answer: 'Félix Palavicini', options: ['Félix Palavicini', 'Antonio Rocha', 'José Vasconcelos', 'Justo Sierra'] },
+            { type: 'persona', category: 'personas', question: '¿Qué ministro colombiano (1930-1944) afirmó que el título universitario "marchitaba la sensibilidad" de la mujer?', answer: 'Antonio Rocha', options: ['Félix Palavicini', 'Antonio Rocha', 'Laureano Gómez', 'Alfonso López Pumarejo'] },
+            { type: 'persona', category: 'personas', question: '¿Qué poetisa chilena escribió "Lecturas para Mujeres" en los años 20 con enfoque maternalista?', answer: 'Gabriela Mistral', options: ['Gabriela Mistral', 'Rosario Castellanos', 'Alfonsina Storni', 'Claribel Alegría'] },
+            { type: 'persona', category: 'personas', question: '¿Qué escritora mexicana escribió "Mujer que sabe latín" en los años 70 con crítica al patriarcado?', answer: 'Rosario Castellanos', options: ['Elena Poniatowska', 'Rosario Castellanos', 'Carolina María de Jesús', 'Gioconda Belli'] },
+            { type: 'persona', category: 'personas', question: '¿Qué historiadora es referente indispensable en educación de mujeres en la colonia?', answer: 'Pilar Gonzalbo Aizpuru', options: ['Asunción Lavrin', 'Pilar Gonzalbo Aizpuru', 'Eugenia Rodríguez Sáenz', 'Rita Segato'] },
+            { type: 'persona', category: 'personas', question: '¿Qué historiadora comparó a Mistral y Castellanos para entender la evolución del género?', answer: 'Asunción Lavrin', options: ['Asunción Lavrin', 'Pilar Gonzalbo Aizpuru', 'Silvia Arrom', 'Mary Kay Vaughan'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué concepto justifica los derechos de la mujer por sus virtudes como madre (moral, sensibilidad)?', answer: 'Maternalismo', options: ['Feminismo', 'Maternalismo', 'Paternalismo', 'Protectorado'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué visión de la educación femenina la veía como herramienta para la subsistencia propia y lucha contra la pobreza?', answer: 'Visión centrada en la mujer', options: ['Visión idealista', 'Visión económica', 'Visión centrada en la mujer', 'Visión biológica'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué visión de la educación femenina persistió argumentando "aptitudes propias del sexo"?', answer: 'Visión biológica', options: ['Visión idealista', 'Visión económica', 'Visión centrada en la mujer', 'Visión biológica'] },
+
+            // CORRIENTES IDEOLÓGICAS
+            { type: 'concepto', category: 'conceptos', question: '¿Qué corriente ideológica veía a la mujer desde su "misión biológica" y como agente de higiene social?', answer: 'Positivistas', options: ['Liberales', 'Positivistas', 'Socialistas', 'Anarquistas'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué corriente defendía libertades individuales pero mantenía a la mujer bajo tutela masculina?', answer: 'Liberales', options: ['Positivistas', 'Liberales', 'Socialistas', 'Anarquistas'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué corriente propugnaba igualdad de derechos y protección de la mujer obrera?', answer: 'Socialistas', options: ['Positivistas', 'Liberales', 'Socialistas', 'Anarquistas'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué corriente cuestionaba toda autoridad y defendía emancipación integral y amor libre?', answer: 'Anarquistas', options: ['Positivistas', 'Liberales', 'Socialistas', 'Anarquistas'] },
+
+            // DRAMAS DEMOGRÁFICOS
+            { type: 'concepto', category: 'conceptos', question: '¿Qué "plaga" colonial alteró los cuidados familiares y la reproducción social indígena?', answer: 'Epidemias y peste', options: ['Guerras de conquista', 'Epidemias y peste', 'Hambruna', 'Encomiendas'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué fenómeno representó una ruptura drástica en la estructura poblacional por mortalidad masculina joven?', answer: 'Guerras de conquista', options: ['Epidemias', 'Guerras de conquista', 'Hambruna', 'Migraciones'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué sistema representó la desarticulación de la salud indígena por trabajo forzado?', answer: 'Encomiendas', options: ['Mita', 'Encomiendas', 'Repartimiento', 'Hacienda'] },
+            { type: 'concepto', category: 'conceptos', question: '¿Qué estrategia de resistencia implementaron algunos pueblos para evitar la esclavitud y preservar dignidad cultural?', answer: 'Suicidio y autoexterminio', options: ['Rebelión armada', 'Suicidio y autoexterminio', 'Migración forzada', 'Asimilación cultural'] },
+
+            // MODERNISMO
+            { type: 'fecha', category: 'fechas', question: '¿En qué período histórico se ubica el Modernismo de "grandes relatos"?', answer: 'Fines del siglo XIX', options: ['Fines del siglo XIX', 'Década de 1950', 'Década de 1970', 'Siglo XXI'] },
+        ];
+
+        // Match pairs data
+        const matchData = [
+            { left: 'Joan Scott', right: 'Género como categoría analítica' },
+            { left: 'Michel Foucault', right: 'Dispositivos de poder' },
+            { left: 'Kimberlé Crenshaw', right: 'Interseccionalidad (1989)' },
+            { left: 'Rita Segato', right: 'Patriarcado Comunitario vs. Colonial' },
+            { left: 'Nicolás Minelli', right: '1883, argumentos de J.S. Mill' },
+            { left: 'Alfredo Palacios', right: '1907, administración de ingresos (Argentina)' },
+            { left: 'Elvira Rawson', right: '1910, reforma integral (Argentina)' },
+            { left: 'Matilde Throup', right: 'Irracionalidad jurídica (Chile)' },
+            { left: 'Julio Zegers', right: '1887, cuestionó patria potestad (Chile)' },
+            { left: 'Baltasar Brum', right: '1921, simetría absoluta (Uruguay)' },
+            { left: 'Valentín Letelier', right: '1875, matrimonio como contrato (Chile)' },
+            { left: 'Leopoldo Bard', right: '1922, divorcio mutuo acuerdo (Argentina)' },
+            { left: 'Eugenia Rodríguez Sáenz', right: '"Civilizar" a la mujer (Centroamérica)' },
+            { left: 'Cecilia Grierson', right: 'Primera médica argentina (1889)' },
+            { left: 'Félix Palavicini', right: '1910, maestras no universitarias (México)' },
+            { left: 'Antonio Rocha', right: 'Título marchita sensibilidad (Colombia)' },
+            { left: 'Gabriela Mistral', right: '"Lecturas para Mujeres" (años 20)' },
+            { left: 'Rosario Castellanos', right: '"Mujer que sabe latín" (años 70)' },
+            { left: 'Asunción Lavrin', right: 'Mistral vs. Castellanos' },
+            { left: 'Pilar Gonzalbo Aizpuru', right: 'Educación en la colonia' },
+        ];
+
+        // Fill-in-the-blank data
+        const fillData = [
+            { sentence: 'La {blank} surge para analizar relatos de la gente común y construcciones sociales como el género.', answer: 'Nueva Historia', hints: ['Se opone a la Historia Tradicional', 'Surge en contraposición a grandes héroes'] },
+            { sentence: 'El {blank} cuestionaba estructuras fijas en las décadas de 1950 y 1960.', answer: 'Estructuralismo', hints: ['Antecede al postestructuralismo', 'Analiza estructuras profundas'] },
+            { sentence: 'En los años {blank} se enfocó la Historia de las Mujeres en visibilizar experiencias femeninas.', answer: '60 y 70', hints: ['Contexto: Mayo de 1968', 'Décadas del contracultura'] },
+            { sentence: '{blank} acuñó el término Interseccionalidad en 1989.', answer: 'Kimberlé Crenshaw', hints: ['Académica estadounidense', 'Derecho crítico y raza'] },
+            { sentence: 'Según Foucault, el poder se ejerce a través de {blank}.', answer: 'dispositivos de poder', hints: ['No se posee, se ejerce', 'Mecanismos que regulan conductas'] },
+            { sentence: 'La {blank} es la capacidad de los sujetos para resistir y transformar relaciones de poder.', answer: 'agencia', hints: ['Opuesta a la hegemonía', 'Capacidad de actuar'] },
+            { sentence: 'El {blank} impone roles por consenso o fuerza de grupos dominantes.', answer: 'hegemonía', hints: ['Concepto gramsciano', 'Dominación cultural'] },
+            { sentence: 'Según Rita Segato, el Patriarcado {blank} se caracteriza por la dualidad complementaria.', answer: 'Comunitario', hints: ['Pre-intrusión colonial', 'No es binarismo jerárquico'] },
+            { sentence: 'El {blank} de Quauhquechollan narra la conquista desde la perspectiva indígena.', answer: 'Lienzo', hints: ['Documento pictográfico', 'Pueblos nahuas'] },
+            { sentence: '{blank} presentó en 1907 proyectos para que la mujer administrara sus ingresos en Argentina.', answer: 'Alfredo Palacios', hints: ['Político socialista argentino', 'Diputado'] },
+            { sentence: '{blank} redactó en 1910 una reforma integral para control de ingresos en Argentina.', answer: 'Elvira Rawson', hints: ['Figura feminista argentina', 'Médica y activista'] },
+            { sentence: 'En {blank} Uruguay aprobó la ley de divorcio bajo el gobierno del Partido Colorado.', answer: '1907', hints: ['Principios del siglo XX', 'Antes de 1910'] },
+            { sentence: 'En {blank} Uruguay permitió el divorcio por sola voluntad de la mujer.', answer: '1913', hints: ['Reforma de la ley de 1907', 'Primera década del siglo XX'] },
+            { sentence: 'Argentina aprobó la Ley de Matrimonio Civil en {blank}.', answer: '1888', hints: ['Finales del siglo XIX', 'Antes de 1900'] },
+            { sentence: 'El divorcio vincular se legalizó definitivamente en Argentina en {blank}.', answer: '1987', hints: ['Durante la democracia', 'Después de la dictadura'] },
+            { sentence: 'Chile aprobó la separación de Iglesia y Estado en {blank}, clave para el matrimonio civil.', answer: '1925', hints: ['Constitución de...', 'Entre guerras mundiales'] },
+            { sentence: '{blank} propuso en 1875 el matrimonio como contrato en Chile.', answer: 'Valentín Letelier', hints: ['Intelectual liberal chileno', 'Reforma educativa'] },
+            { sentence: '{blank} fue la primera médica argentina en 1889.', answer: 'Cecilia Grierson', hints: ['Pionera médica argentina', 'Sufrió rechazo de cátedra'] },
+            { sentence: '{blank} escribió "Lecturas para Mujeres" con enfoque maternalista espiritual.', answer: 'Gabriela Mistral', hints: ['Poetisa chilena Nobel', 'Años 20'] },
+            { sentence: '{blank} escribió "Mujer que sabe latín" con crítica al patriarcado en los años 70.', answer: 'Rosario Castellanos', hints: ['Escritora mexicana', 'Crítica al sistema patriarcal'] },
+            { sentence: 'El {blank} justifica derechos de la mujer por sus virtudes como madre.', answer: 'maternalismo', hints: ['Concepto de época', 'Relacionado con maternidad'] },
+            { sentence: 'Los {blank} veían a la mujer desde su "misión biológica" y como agente de higiene social.', answer: 'positivistas', hints: ['Corriente ideológica del orden y progreso', 'Fines del siglo XIX'] },
+            { sentence: 'Los {blank} defendían emancipación integral, amor libre y autonomía absoluta.', answer: 'anarquistas', hints: ['Corriente anti-autoritaria', 'Cuestionan Estado e Iglesia'] },
+            { sentence: 'La {blank} es la capacidad de la mujer de actuar legalmente sin permiso del marido.', answer: 'personalidad jurídica', hints: ['Eje central de reformas', 'Capacidad legal propia'] },
+            { sentence: 'El {blank} vincular disuelve totalmente el matrimonio permitiendo uno nuevo.', answer: 'divorcio', hints: ['Diferente a separación de cuerpos', 'Disolución total'] },
+        ];
+
+        // ===================== STATE =====================
+        let currentMode = 'flashcard';
+        let currentCategory = 'all';
+        let score = 0;
+        let streak = 0;
+        let answered = 0;
+        let currentIndex = 0;
+        let filteredData = [];
+        let matchSelected = null;
+        let matchPairsFound = 0;
+        let timerInterval = null;
+        let timeLeft = 15;
+
+        // ===================== INIT =====================
+        function init() {
+            createParticles();
+            setupEventListeners();
+            filterData();
+            loadMode('flashcard');
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 15 + 's';
+                p.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function setupEventListeners() {
+            // Mode selector
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    currentMode = card.dataset.mode;
+                    loadMode(currentMode);
+                });
+            });
+
+            // Category filter
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentCategory = chip.dataset.cat;
+                    filterData();
+                    loadMode(currentMode);
+                });
+            });
+        }
+
+        function filterData() {
+            if (currentCategory === 'all') {
+                filteredData = [...data];
+            } else {
+                filteredData = data.filter(d => d.category === currentCategory);
+            }
+            // Shuffle
+            filteredData.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            document.getElementById('totalQuestions').textContent = filteredData.length;
+        }
+
+        // ===================== MODE LOADER =====================
+        function loadMode(mode) {
+            clearInterval(timerInterval);
+            const area = document.getElementById('gameArea');
+            area.innerHTML = '';
+
+            if (filteredData.length === 0 && mode !== 'match') {
+                area.innerHTML = `
+                    <div style="text-align:center; padding:60px 20px;">
+                        <div style="font-size:3rem; margin-bottom:15px;">📭</div>
+                        <h3 style="font-family:'Playfair Display'; color:var(--primary); margin-bottom:10px;">No hay preguntas</h3>
+                        <p style="color:var(--text-light);">Prueba con otra categoría</p>
+                    </div>`;
+                return;
+            }
+
+            switch(mode) {
+                case 'flashcard':
+                    renderFlashcard(area);
+                    break;
+                case 'quiz':
+                    renderQuiz(area);
+                    break;
+                case 'fill':
+                    renderFill(area);
+                    break;
+                case 'match':
+                    renderMatch(area);
+                    break;
+            }
+        }
+
+        // ===================== FLASHCARD =====================
+        function renderFlashcard(area) {
+            if (currentIndex >= filteredData.length) {
+                showResults(area);
+                return;
+            }
+
+            const item = filteredData[currentIndex];
+            const progress = ((currentIndex) / filteredData.length) * 100;
+
+            area.innerHTML = `
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                <div class="question-counter">Tarjeta ${currentIndex + 1} de ${filteredData.length}</div>
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-face flashcard-front">
+                            <div style="font-size:2.5rem; margin-bottom:20px;">🤔</div>
+                            <h3>${item.question}</h3>
+                            <p class="hint">Toca para revelar la respuesta</p>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <div style="font-size:2.5rem; margin-bottom:20px;">💡</div>
+                            <h4>Respuesta</h4>
+                            <p>${item.answer}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flashcard-controls">
+                    <button class="btn btn-secondary" onclick="prevCard()">⬅️ Anterior</button>
+                    <button class="btn btn-primary" onclick="nextCard()">Siguiente ➡️</button>
+                </div>
+            `;
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentIndex++;
+            answered++;
+            updateScoreBar();
+            loadMode('flashcard');
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadMode('flashcard');
+            }
+        }
+
+        // ===================== QUIZ =====================
+        function renderQuiz(area) {
+            if (currentIndex >= filteredData.length) {
+                showResults(area);
+                return;
+            }
+
+            const item = filteredData[currentIndex];
+            const progress = ((currentIndex) / filteredData.length) * 100;
+            timeLeft = 20;
+
+            // Shuffle options
+            const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
+
+            area.innerHTML = `
+                <div class="timer" id="timer">⏱️ ${timeLeft}s</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                <div class="question-counter">Pregunta ${currentIndex + 1} de ${filteredData.length}</div>
+                <div class="quiz-question">${item.question}</div>
+                <div class="quiz-options" id="quizOptions">
+                    ${shuffledOptions.map((opt, i) => `
+                        <div class="quiz-option" onclick="selectOption(this, '${opt.replace(/'/g, "\'")}', '${item.answer.replace(/'/g, "\'")}')">
+                            <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+                            <span>${opt}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="quizFeedback"></div>
+            `;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timerEl) timerEl.textContent = `⏱️ ${timeLeft}s`;
+                if (timeLeft <= 5 && timerEl) timerEl.classList.add('warning');
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.classList.add('disabled'));
+            const feedback = document.getElementById('quizFeedback');
+            feedback.innerHTML = `<div class="feedback wrong">⏰ ¡Se acabó el tiempo! La respuesta correcta era: <strong>${filteredData[currentIndex].answer}</strong></div>`;
+            streak = 0;
+            setTimeout(() => {
+                currentIndex++;
+                answered++;
+                updateScoreBar();
+                loadMode('quiz');
+            }, 2500);
+        }
+
+        function selectOption(el, selected, correct) {
+            clearInterval(timerInterval);
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            const feedback = document.getElementById('quizFeedback');
+            const isCorrect = selected === correct;
+
+            if (isCorrect) {
+                el.classList.add('correct');
+                score += 10 + (streak * 2);
+                streak++;
+                feedback.innerHTML = `<div class="feedback correct">✅ ¡Correcto! +${10 + ((streak-1) * 2)} pts 🔥 Racha: ${streak}</div>`;
+                if (streak >= 5) createConfetti();
+            } else {
+                el.classList.add('wrong');
+                // Highlight correct
+                options.forEach(opt => {
+                    if (opt.textContent.includes(correct)) opt.classList.add('correct');
+                });
+                streak = 0;
+                feedback.innerHTML = `<div class="feedback wrong">❌ Incorrecto. La respuesta correcta era: <strong>${correct}</strong></div>`;
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                answered++;
+                updateScoreBar();
+                loadMode('quiz');
+            }, 2000);
+        }
+
+        // ===================== FILL IN BLANK =====================
+        let currentFillIndex = 0;
+        let shuffledFillData = [];
+
+        function renderFill(area) {
+            if (shuffledFillData.length === 0 || currentFillIndex >= shuffledFillData.length) {
+                if (shuffledFillData.length > 0 && currentFillIndex >= shuffledFillData.length) {
+                    showResults(area);
+                    return;
+                }
+                shuffledFillData = [...fillData].sort(() => Math.random() - 0.5);
+                if (currentCategory !== 'all') {
+                    // Simple filter by checking if answer or sentence contains category keywords
+                    const catMap = {
+                        'teoria': ['Nueva Historia', 'Estructuralismo', 'Postestructuralismo', 'dispositivos', 'hegemonía', 'agencia', 'interseccionalidad'],
+                        'fechas': ['1907', '1910', '1913', '1888', '1987', '1925', '1875', '1883', '1889', '60', '70'],
+                        'personas': ['Joan', 'Foucault', 'Crenshaw', 'Segato', 'Minelli', 'Palacios', 'Rawson', 'Throup', 'Zegers', 'Brum', 'Letelier', 'Bard', 'Rodríguez', 'Grierson', 'Palavicini', 'Rocha', 'Mistral', 'Castellanos', 'Lavrin', 'Gonzalbo'],
+                        'conceptos': ['hegemonía', 'agencia', 'maternalismo', 'positivistas', 'anarquistas', 'personalidad jurídica', 'divorcio', 'encomiendas', 'feminicidio', 'doble criterio'],
+                        'paises': ['Uruguay', 'Argentina', 'Chile', 'México', 'Colombia']
+                    };
+                    const keywords = catMap[currentCategory] || [];
+                    shuffledFillData = shuffledFillData.filter(d => 
+                        keywords.some(k => d.sentence.includes(k) || d.answer.includes(k))
+                    );
+                }
+                if (shuffledFillData.length === 0) {
+                    area.innerHTML = `
+                        <div style="text-align:center; padding:60px 20px;">
+                            <div style="font-size:3rem; margin-bottom:15px;">📭</div>
+                            <h3 style="font-family:'Playfair Display'; color:var(--primary);">No hay preguntas</h3>
+                            <p style="color:var(--text-light);">Prueba con otra categoría</p>
+                        </div>`;
+                    return;
+                }
+                currentFillIndex = 0;
+            }
+
+            const item = shuffledFillData[currentFillIndex];
+            const progress = ((currentFillIndex) / shuffledFillData.length) * 100;
+
+            area.innerHTML = `
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                <div class="question-counter">Completar ${currentFillIndex + 1} de ${shuffledFillData.length}</div>
+                <div class="fill-question">${item.sentence.replace('{blank}', '<span class="blank" id="blankDisplay">___</span>')}</div>
+                <div class="fill-input-area">
+                    <input type="text" class="fill-input" id="fillInput" placeholder="Escribe la respuesta..." autocomplete="off">
+                    <button class="btn btn-primary" onclick="checkFill()">Verificar ✓</button>
+                </div>
+                <div class="fill-hints" id="fillHints">
+                    ${item.hints.map((h, i) => `<span class="hint-chip" onclick="showHint(${i}, this)">💡 Pista ${i+1}</span>`).join('')}
+                </div>
+                <div id="fillFeedback"></div>
+            `;
+
+            document.getElementById('fillInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkFill();
+            });
+            document.getElementById('fillInput').focus();
+        }
+
+        function showHint(index, el) {
+            const item = shuffledFillData[currentFillIndex];
+            el.textContent = `💡 ${item.hints[index]}`;
+            el.style.background = '#fff5f5';
+            el.style.borderColor = 'var(--accent)';
+            el.style.color = 'var(--accent)';
+        }
+
+        function checkFill() {
+            const input = document.getElementById('fillInput').value.trim().toLowerCase();
+            const item = shuffledFillData[currentFillIndex];
+            const correct = item.answer.toLowerCase();
+            const feedback = document.getElementById('fillFeedback');
+            const blankDisplay = document.getElementById('blankDisplay');
+
+            // Allow partial matches for longer answers
+            const isCorrect = input === correct || (correct.length > 10 && correct.includes(input) && input.length > 5);
+
+            if (isCorrect) {
+                blankDisplay.textContent = item.answer;
+                blankDisplay.style.color = 'var(--success)';
+                blankDisplay.style.borderColor = 'var(--success)';
+                score += 15 + (streak * 3);
+                streak++;
+                feedback.innerHTML = `<div class="feedback correct">✅ ¡Perfecto! +${15 + ((streak-1) * 3)} pts 🔥 Racha: ${streak}</div>`;
+                if (streak >= 5) createConfetti();
+            } else {
+                blankDisplay.textContent = item.answer;
+                blankDisplay.style.color = 'var(--error)';
+                blankDisplay.style.borderColor = 'var(--error)';
+                streak = 0;
+                feedback.innerHTML = `<div class="feedback wrong">❌ La respuesta correcta era: <strong>${item.answer}</strong></div>`;
+            }
+
+            setTimeout(() => {
+                currentFillIndex++;
+                answered++;
+                updateScoreBar();
+                renderFill(document.getElementById('gameArea'));
+            }, 2500);
+        }
+
+        // ===================== MATCH =====================
+        function renderMatch(area) {
+            // Filter match data by category if needed
+            let filteredMatch = [...matchData];
+            if (currentCategory !== 'all') {
+                const catMap = {
+                    'teoria': ['Joan Scott', 'Foucault', 'Crenshaw', 'Segato'],
+                    'fechas': ['1907', '1910', '1913', '1883', '1921', '1875', '1922', '1889'],
+                    'personas': ['Joan', 'Foucault', 'Crenshaw', 'Segato', 'Minelli', 'Palacios', 'Rawson', 'Throup', 'Zegers', 'Brum', 'Letelier', 'Bard', 'Rodríguez', 'Grierson', 'Palavicini', 'Rocha', 'Mistral', 'Castellanos', 'Lavrin', 'Gonzalbo'],
+                    'conceptos': ['categoría analítica', 'dispositivos', 'interseccionalidad', 'patriarcado', 'colonia'],
+                    'paises': ['Argentina', 'Chile', 'Uruguay', 'México', 'Colombia', 'Centroamérica']
+                };
+                const keywords = catMap[currentCategory] || [];
+                filteredMatch = filteredMatch.filter(d => 
+                    keywords.some(k => d.left.includes(k) || d.right.includes(k))
+                );
+            }
+
+            if (filteredMatch.length === 0) {
+                area.innerHTML = `
+                    <div style="text-align:center; padding:60px 20px;">
+                        <div style="font-size:3rem; margin-bottom:15px;">📭</div>
+                        <h3 style="font-family:'Playfair Display'; color:var(--primary);">No hay pares</h3>
+                        <p style="color:var(--text-light);">Prueba con otra categoría</p>
+                    </div>`;
+                return;
+            }
+
+            // Take 6 random pairs
+            const selected = filteredMatch.sort(() => Math.random() - 0.5).slice(0, 6);
+            const leftItems = selected.map((d, i) => ({ ...d, side: 'left', id: `l${i}` }));
+            const rightItems = selected.map((d, i) => ({ ...d, side: 'right', id: `r${i}`, text: d.right })).sort(() => Math.random() - 0.5);
+
+            matchPairsFound = 0;
+            matchSelected = null;
+
+            area.innerHTML = `
+                <div class="question-counter" style="margin-bottom:25px;">Empareja: ${selected.length} pares · Encuentra las correspondencias</div>
+                <div class="match-grid" id="matchGrid">
+                    ${leftItems.map(d => `
+                        <div class="match-item" data-side="left" data-pair="${d.left}" id="${d.id}" onclick="handleMatchClick(this)">
+                            <strong>${d.left}</strong>
+                        </div>
+                    `).join('')}
+                    ${rightItems.map((d, i) => `
+                        <div class="match-item" data-side="right" data-pair="${d.left}" id="${d.id}_r${i}" onclick="handleMatchClick(this)">
+                            ${d.text}
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="matchFeedback"></div>
+                <div style="text-align:center; margin-top:20px;">
+                    <button class="btn btn-secondary" onclick="loadMode('match')">🔄 Nuevos pares</button>
+                </div>
+            `;
+        }
+
+        function handleMatchClick(el) {
+            if (el.classList.contains('matched')) return;
+
+            if (!matchSelected) {
+                matchSelected = el;
+                el.classList.add('selected');
+            } else {
+                const first = matchSelected;
+                const second = el;
+
+                // Can't match same side
+                if (first.dataset.side === second.dataset.side) {
+                    first.classList.remove('selected');
+                    matchSelected = second;
+                    second.classList.add('selected');
+                    return;
+                }
+
+                const isMatch = first.dataset.pair === second.dataset.pair;
+
+                if (isMatch) {
+                    first.classList.remove('selected');
+                    first.classList.add('matched');
+                    second.classList.add('matched');
+                    matchPairsFound++;
+                    score += 20;
+                    streak++;
+                    updateScoreBar();
+
+                    const feedback = document.getElementById('matchFeedback');
+                    feedback.innerHTML = `<div class="feedback correct">✅ ¡Par correcto! +20 pts</div>`;
+
+                    if (matchPairsFound >= 6) {
+                        setTimeout(() => {
+                            answered += 6;
+                            updateScoreBar();
+                            createConfetti();
+                            feedback.innerHTML = `<div class="feedback correct">🎉 ¡Completado! Emparejaste todos los pares</div>`;
+                        }, 500);
+                    }
+                } else {
+                    first.classList.add('wrong-match');
+                    second.classList.add('wrong-match');
+                    streak = 0;
+                    updateScoreBar();
+
+                    const feedback = document.getElementById('matchFeedback');
+                    feedback.innerHTML = `<div class="feedback wrong">❌ No coinciden. Intenta de nuevo.</div>`;
+
+                    setTimeout(() => {
+                        first.classList.remove('selected', 'wrong-match');
+                        second.classList.remove('wrong-match');
+                        matchSelected = null;
+                    }, 800);
+                    return;
+                }
+
+                matchSelected = null;
+            }
+        }
+
+        // ===================== RESULTS =====================
+        function showResults(area) {
+            const percentage = filteredData.length > 0 ? Math.round((score / (filteredData.length * 20)) * 100) : 0;
+            let message = '';
+            if (percentage >= 90) message = '🏆 ¡Excelente! Dominas los conceptos memorísticos';
+            else if (percentage >= 70) message = '👏 ¡Muy bien! Buen dominio de los datos';
+            else if (percentage >= 50) message = '💪 ¡Vas por buen camino! Sigue practicando';
+            else message = '📚 Sigue practicando, ¡la repetición es la clave!';
+
+            area.innerHTML = `
+                <div class="results-screen">
+                    <h2>¡Sesión Completada!</h2>
+                    <div class="results-score">${score}</div>
+                    <p style="color:var(--text-light); margin-bottom:10px;">puntos totales</p>
+                    ${streak > 3 ? `<div class="streak-badge">🔥 Mejor racha: ${streak}</div>` : ''}
+                    <p class="results-message">${message}</p>
+                    <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:20px;">
+                        <button class="btn btn-primary" onclick="resetGame()">🔄 Jugar de Nuevo</button>
+                        <button class="btn btn-secondary" onclick="changeMode()">🎮 Cambiar Modo</button>
+                    </div>
+                </div>
+            `;
+            createConfetti();
+        }
+
+        function resetGame() {
+            score = 0;
+            streak = 0;
+            answered = 0;
+            currentIndex = 0;
+            currentFillIndex = 0;
+            shuffledFillData = [];
+            filterData();
+            updateScoreBar();
+            loadMode(currentMode);
+        }
+
+        function changeMode() {
+            document.getElementById('gameArea').innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: var(--text-light);">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">👆</div>
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--primary); margin-bottom: 10px;">
+                        Selecciona un modo de juego
+                    </h3>
+                    <p>Elige arriba cómo quieres practicar los conceptos memorísticos</p>
+                </div>
+            `;
+        }
+
+        // ===================== UTILS =====================
+        function updateScoreBar() {
+            document.getElementById('totalScore').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('answered').textContent = answered;
+        }
+
+        function createConfetti() {
+            const colors = ['#e94560', '#f4a261', '#2a9d8f', '#e9c46a', '#f4a261'];
+            for (let i = 0; i < 50; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDuration = (2 + Math.random() * 2) + 's';
+                conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
