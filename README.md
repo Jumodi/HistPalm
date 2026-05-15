@@ -1,0 +1,2 @@
+# HistPalm
+Práctica para examen
